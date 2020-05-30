@@ -36,9 +36,9 @@ class Music:
 
 #搜索
 class Search:
-    def __init__(self,type,keyword):
-        self.songs=[]
-        self.playlists=[]
+    def __init__(self, type, keyword):
+        self.songs = []
+        self.playlists = []
         self.type = type
         self.keyword = keyword
 
@@ -49,18 +49,17 @@ class Search:
             return self.playlist(keyword=self.keyword)
 
     #搜索单曲
-    def music(self, keyword,num=30):
-        self.songs=[]
-        url = 'https://v1.alapi.cn/api/music/search?limit={num}&type=1&keyword={keyword}'.format(num=num,keyword=keyword)
+    def music(self, keyword, num=30):
+        self.songs = []
+        url = 'https://v1.alapi.cn/api/music/search?limit={num}&type=1&keyword={keyword}'.format(num=num, keyword=keyword)
         req = requests.get(url).text
-        print(url)
         data = json.loads(req)['data']['songs']
         for i in data:
             song = {}
-            song['name'] = i['name'] #名字
-            song['id'] = i['id'] #ID
-            song['singer'] = i["artists"][0]['name'] #歌手名
-            song['album'] = i['album']['name'] #专辑名
+            song['name'] = i['name']  # 名字
+            song['id'] = i['id']  # ID
+            song['singer'] = i["artists"][0]['name']  # 歌手名
+            song['album'] = i['album']['name']  # 专辑名
             self.songs.append(song)
         
         return self.songs
@@ -76,8 +75,6 @@ class Search:
             playlist['name'] = i['name']  # 名字
             playlist['id'] = i['id']  # ID
             self.playlists.append(playlist)
-        
-        print(self.playlists)
 
 
 def playlist(id):

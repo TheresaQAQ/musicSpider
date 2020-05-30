@@ -22,8 +22,11 @@ class MainWindows:
     def search(self):
         search_input = self.gui.search_input.text()
         search_type = self.gui.search_type.currentText()
+        print(search_type)
         search = Search(type=search_type, keyword=search_input)
         re = search.run()
+        self.gui.list.clear()
+        print(re)
         for i in re:
             name = '{name}-{singer}-{id}'.format(name=i['name'], singer=i['singer'], id=str(i['id']))
             self.gui.list.addItem(name)
@@ -35,5 +38,6 @@ def main():
 
     windows.gui.show()
     app.exec_()
+
 if __name__ == '__main__':
     main()
