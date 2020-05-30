@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>662</width>
+    <height>513</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>test</string>
+  </property>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>0</y>
+     <width>311</width>
+     <height>511</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="search_2">
+    <item>
+     <layout class="QHBoxLayout" name="search">
+      <item>
+       <widget class="QLineEdit" name="search_input">
+        <property name="placeholderText">
+         <string>请输入搜索对象</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="search_type">
+        <property name="currentText">
+         <string>单曲</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>单曲</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>歌单</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>歌手</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="search_button">
+        <property name="text">
+         <string>搜索</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QListWidget" name="list"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QListView" name="listView">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>120</y>
+     <width>256</width>
+     <height>192</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
