@@ -1,8 +1,9 @@
 import requests, os, json, re
 
+headers = {'Content-Type': "application/x-www-form-urlencoded"}
 
 class Music:
-    def __init__(self,id):
+    def __init__(self, id):
 
         #获取歌曲详细信息
         url = 'https://api.imjad.cn/cloudmusic/?type=detail&id={id}'.format(id=id)
@@ -19,15 +20,16 @@ class Music:
         req = requests.get(url).text
         dic = json.loads(req)['data'][0]
         self.url = dic['url'] #歌曲地址
+
+        self.file_name = '{name}-{singer}.mp3'.format(name=self.name, singer=self.singer)
     
     #下载方法
     def download(self):
-        file_name = '{name}-{singer}.mp3'.format(name=self.name, singer=self.singer)
         
         #判断文件是否存在
-        if os.path.exists(file_name) != True:
+        if os.path.exists(self.file_name) != True:
             content = requests.get(self.url).content
-            with open(file_name,'wb') as f:
+            with open(self.file_name,'wb') as f:
                 f.write(content)
             print('下载成功:）')
         else:
@@ -52,29 +54,67 @@ class Search:
     def music(self, keyword, num=30):
         self.songs = []
         url = 'https://v1.alapi.cn/api/music/search?limit={num}&type=1&keyword={keyword}'.format(num=num, keyword=keyword)
-        req = requests.get(url).text
-        data = json.loads(req)['data']['songs']
-        for i in data:
-            song = {}
-            song['name'] = i['name']  # 名字
-            song['id'] = i['id']  # ID
-            song['singer'] = i["artists"][0]['name']  # 歌手名
-            song['album'] = i['album']['name']  # 专辑名
-            self.songs.append(song)
-        
+        req = requests.get(url, headers=headers).text
+        data = json.loads(req)
+        if data['code'] == 200:
+            data = data['data']['songs']
+            for i in data:
+                song = {}
+                song['name'] = i['name']  # 名字
+                song['id'] = i['id']  # ID
+                song['singer'] = i["artists"][0]['name']  # 歌手名
+                song['album'] = i['album']['name']  # 专辑名
+                self.songs.append(song)
+        # 使用另一个API
+        else:
+            print('API错误')
+            data = {
+                's': keyword,
+                'type': 1,
+                'limit': num
+            }
+            html = requests.post('http://music.163.com/api/search/pc', data)
+            data = json.loads(html.text)['result']['songs']
+            self.songs = []
+            for i in data:
+                song = {}
+                song['name'] = i['name']  # 名字
+                song['id'] = i['id']  # ID
+                song['singer'] = i["artists"][0]['name']  # 歌手名
+                self.songs.append(song)
+
         return self.songs
 
     #搜索歌单
     def playlist(self,keyword,num=30):
         self.playlists = []
         url = 'https://v1.alapi.cn/api/music/search?limit={num}&type=1000&keyword={keyword}'.format(num=num, keyword=keyword)
-        req = requests.get(url).text
-        data = json.loads(req)['data']['playlists']
-        for i in data:
-            playlist = {}
-            playlist['name'] = i['name']  # 名字
-            playlist['id'] = i['id']  # ID
-            self.playlists.append(playlist)
+        req = requests.get(url, headers=headers).text
+        data = json.loads(req)
+        if data['code'] == 200:
+            data = data['data']['playlists']
+            for i in data:
+                playlist = {}
+                playlist['name'] = i['name']  # 名字
+                playlist['id'] = i['id']  # ID
+                self.playlists.append(playlist)
+        else:
+            print('API错误')
+            data = {
+                's': keyword,
+                'type': 1,
+                'limit': num
+            }
+            html = requests.post('http://music.163.com/api/search/pc', data)
+            data = json.loads(html.text)['result']['playlists']
+            self.playlists = []
+            for i in data:
+                playlist = {}
+                playlist['name'] = i['name']  # 名字
+                playlist['id'] = i['id']  # ID
+                self.playlists.append(playlist)
+
+        return self.playlists
 
 
 def playlist(id):
@@ -126,6 +166,4 @@ def main():
         pass
 
 if __name__ == '__main__':
-    a = Search(type='单曲',keyword='凉凉')
-    b = a.run()
-    print(b)
+    pass
