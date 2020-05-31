@@ -68,7 +68,36 @@ class Search:
             song['singer'] = i["artists"][0]['name']  # 歌手名
             song['album'] = i['album']['name']  # 专辑名
             self.songs.append(song)
-        
+
+        req = requests.get(url).text
+        data = json.loads(req)
+        if data['code'] == 200:
+            data = data['data']['songs']
+            for i in data:
+                song = {}
+                song['name'] = i['name']  # 名字
+                song['id'] = i['id']  # ID
+                song['singer'] = i["artists"][0]['name']  # 歌手名
+                song['album'] = i['album']['name']  # 专辑名
+                self.songs.append(song)
+        # 使用另一个API
+        else:
+            print('API错误')
+            data = {
+                's': keyword,
+                'type': 1,
+                'limit': num
+            }
+            html = requests.post('http://music.163.com/api/search/pc', data)
+            data = json.loads(html.text)['result']['songs']
+            self.songs = []
+            for i in data:
+                song = {}
+                song['name'] = i['name']  # 名字
+                song['id'] = i['id']  # ID
+                song['singer'] = i["artists"][0]['name']  # 歌手名
+                self.songs.append(song)
+
         return self.songs
 
     #搜索歌单
