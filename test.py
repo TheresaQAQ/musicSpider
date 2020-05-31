@@ -21,7 +21,6 @@ class MainWindows:
         self.gui.start_button.clicked.connect(self.playmusic)
 
 
-
     def search(self):
         search_input = self.gui.search_input.text()
         search_type = self.gui.search_type.currentText()

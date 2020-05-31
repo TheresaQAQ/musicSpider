@@ -94,9 +94,6 @@ def playlist(id):
     
     for i in musics:
         i.download()
-    
-
-
 
 def a_music():
     pass
