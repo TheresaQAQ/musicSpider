@@ -4,34 +4,41 @@ import requests, os, json, re
 class Music:
     def __init__(self,id):
 
-        #获取歌曲详细信息
+        # 获取歌曲详细信息
         url = 'https://api.imjad.cn/cloudmusic/?type=detail&id={id}'.format(id=id)
         req = requests.get(url).text
         dic = json.loads(req)['songs'][0]
 
-        self.name = dic['name'] #歌曲名称
-        self.singer = dic['ar'][0]['name'] #歌手名称
-        self.album = dic['al']['name'] #所属专辑
-        self.picurl = dic['al']['picUrl'] #封面地址
+        self.name = dic['name']  # 歌曲名称
+        self.singer = dic['ar'][0]['name']  # 歌手名称
+        self.album = dic['al']['name']  # 所属专辑
+        self.picurl = dic['al']['picUrl']  # 封面地址
 
-        #获取歌曲信息
+        # 获取歌曲信息
         url = 'https://api.imjad.cn/cloudmusic/?type=id&id={id}'.format(id=id)
         req = requests.get(url).text
         dic = json.loads(req)['data'][0]
-        self.url = dic['url'] #歌曲地址
+        self.url = dic['url'] # 歌曲地址
     
     #下载方法
-    def download(self):
-        file_name = '{name}-{singer}.mp3'.format(name=self.name, singer=self.singer)
-        
-        #判断文件是否存在
-        if os.path.exists(file_name) != True:
-            content = requests.get(self.url).content
-            with open(file_name,'wb') as f:
-                f.write(content)
-            print('下载成功:）')
+    def download(self, type='cache'):
+        if type == 'cache':
+            file_name = 'cache\{name}-{singer}.zqj'.format(name=self.name, singer=self.singer)
+            # 判断文件是否存在
+            if os.path.exists(file_name) != True:
+                content = requests.get(self.url).content
+                with open(file_name, 'wb') as f:
+                    f.write(content)
         else:
-            print('文件已存在！')
+            file_name = 'download\{name}-{singer}.mp3'.format(name=self.name, singer=self.singer)
+            # 判断文件是否存在
+            if os.path.exists(file_name) != True:
+                content = requests.get(self.url).content
+                with open(file_name, 'wb') as f:
+                    f.write(content)
+                print('下载成功:）')
+            else:
+                print('文件已存在！')
 
 
 #搜索

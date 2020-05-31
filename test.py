@@ -3,7 +3,7 @@ from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import QFile, QUrl
 from PySide2.QtMultimedia import QMediaContent, QMediaPlayer
 from spider import Search, Music
-import sys
+import sys,re
 
 class MainWindows:
     def __init__(self):
@@ -14,11 +14,12 @@ class MainWindows:
 
         self.gui = QUiLoader().load(gui_file)
 
+        self.player = QMediaPlayer()
 
         #事件绑定
-
         self.gui.search_button.clicked.connect(self.search)
         self.gui.start_button.clicked.connect(self.playmusic)
+
 
 
     def search(self):
@@ -32,32 +33,34 @@ class MainWindows:
             self.gui.list.addItem(name)
 
     def playmusic(self):
-        music = self.gui.list.currentItem().text()
-        if music != None:
-            name = music.split('-')[0]
-            print(name)
-            for i in self.search_return:
-                if i['name'] == name:
-                    id = i['id']
-                    print(id)
-                    break
+        try:
+            music = self.gui.list.currentItem().text()
+            if music != None:
+                if self.gui.start_button.text() == '开始':
+                    self.gui.label.setText('正在播放：' + music)
+                    name = re.search(r'(^.*?)(-)(.*?)$',music).group(0)
+                    for i in self.search_return:
+                        if i['name'] == music.split('-')[0]:
+                            id = i['id']
+                            break
+                    music = Music(id=str(id))
+                    music.download()
+                    path = r'cache\{0}.zqj'.format(name)
+                    url = QUrl.fromLocalFile(path)
+                    content = QMediaContent(url)
+                    self.player.setMedia(content)
+                    self.player.play()
+                    self.gui.start_button.setText('暂停')
+                else:
+                    self.player.stop()
+                    self.gui.start_button.setText('开始')
+        except AttributeError:
+            print('未选中')
 
-        music = Music(id=str(id))
-        music.download()
-        path = r'C;\Users\zhouq\PycharmProjects\音乐爬虫\{0}'.format(music.name)
-        url = QUrl.fromLocalFile(path)
-        content = QMediaContent(url)
-        player = QMediaPlayer()
-        player.setMedia(content)
-        player.setVolume(100)
-        player.play()
 def main():
     app = QApplication()
-
     windows = MainWindows()
-
     windows.gui.show()
     app.exec_()
-
 if __name__ == '__main__':
     main()
