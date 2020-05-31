@@ -1,8 +1,9 @@
 from PySide2.QtWidgets import QApplication
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtCore import QFile
-from spider import Search,Music
-import playsound
+from PySide2.QtCore import QFile, QUrl
+from PySide2.QtMultimedia import QMediaContent, QMediaPlayer
+from spider import Search, Music
+import sys
 
 class MainWindows:
     def __init__(self):
@@ -40,11 +41,16 @@ class MainWindows:
                     id = i['id']
                     print(id)
                     break
+
         music = Music(id=str(id))
         music.download()
-        print(music.file_name)
-        playsound.playsound(sound=music.file_name)
-
+        path = r'C;\Users\zhouq\PycharmProjects\音乐爬虫\{0}'.format(music.name)
+        url = QUrl.fromLocalFile(path)
+        content = QMediaContent(url)
+        player = QMediaPlayer()
+        player.setMedia(content)
+        player.setVolume(100)
+        player.play()
 def main():
     app = QApplication()
 
