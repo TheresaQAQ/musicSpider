@@ -80,25 +80,35 @@
        </layout>
       </item>
       <item>
+       <widget class="QSlider" name="Slider">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="back_button">
           <property name="text">
-           <string>《</string>
+           <string>&lt;</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="start_button">
+         <widget class="QPushButton" name="play_button">
           <property name="text">
-           <string>开始</string>
+           <string>播放</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="next_button">
           <property name="text">
-           <string>》</string>
+           <string>&gt;</string>
           </property>
          </widget>
         </item>
