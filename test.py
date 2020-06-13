@@ -9,7 +9,7 @@ import re
 class MainWindows:
     def __init__(self):
         # 读取文件
-        gui_file = QFile('GUI.ui')
+        gui_file = QFile('GUI_DEMO_2.ui')
         gui_file.open(QFile.ReadOnly)
         gui_file.close()
 
@@ -17,20 +17,41 @@ class MainWindows:
 
         self.player = QMediaPlayer()
 
+        self.gui.voiceSlider.setMinimum(20) # 最小值
+        self.gui.voiceSlider.setMaximum(60) # 最大值
+        self.gui.voiceSlider.setSingleStep(2) # 步长
+
         # 事件绑定
         self.gui.search_button.clicked.connect(self.thread_search) # 搜索
         self.gui.play_button.clicked.connect(self.thread_playmusic) # 播放
         self.gui.list.doubleClicked.connect(self.thread_open_playlist) # 打开歌单
         self.player.durationChanged.connect(self.set_time) # 初始化进度条
         self.player.positionChanged.connect(self.play_slide) # 更新进度条
-        # self.gui.Slider.valueChanged.connect(self.set_position)
+        #self.gui.Slider.valueChanged.connect(self.set_position)
+        self.gui.voiceSlider.valueChanged.connect(self.changed_voice())
 
+    def changed_voice(self):
+        try:
+            self.player.setVolume(self.gui.voiceSlider.value())
+        except:
+            pass
     # 更改进度
     def set_position(self):
         self.player.setPosition(self.gui.Slider.value())
     # 更新进度条
-    def play_slide(self, val):
-        self.gui.Slider.setValue(int(val / 1000))
+    def play_slide(self):
+        val = self.player.position() / 1000
+        self.gui.Slider.setValue(val)
+
+        music_time = self.player.duration() / 1000
+
+
+        now_min = int(val // 60)
+        now_s = int(val - now_min * 60)
+
+        all_min = int(int(music_time) // 60)
+        all_s = int(music_time - all_min*60)
+        self.gui.time_label.setText('{0}:{1}/{2}:{3}'.format(now_min,now_s,all_min,all_s))
 
     # 初始化进度条
     def set_time(self):
@@ -63,26 +84,36 @@ class MainWindows:
 
     # 播放音乐
     def playmusic(self):
-        music = self.gui.list.currentItem().text()
-        name = re.search(r'(^.*?)(-)(.*?)$', music).group(0)
-        if music != None:
-            if self.gui.play_button.text() == '开始':
-                self.gui.label.setText('正在播放：' + music)
-                for i in self.search_return:
-                    if i['name'] == music.split('-')[0]:
-                        id = i['id']
-                        break
+        music_name = self.gui.list.currentItem().text()
+        name = re.search(r'(^.*?)(-)(.*?)$', music_name).group(0)
+        if music_name != None:
+            if self.gui.play_button.text() == '播放':
+                if self.gui.search_type.currentText() == '单曲':
+                    for i in self.search_return:
+                        if i['name'] == music_name.split('-')[0]:
+                            id = i['id']
+                            break
+                elif self.gui.search_type.currentText() == '歌单':
+                    for i in self.musics_by_playlist:
+                        if i['name'] == music_name.split('-')[0]:
+                            id = i['id']
+                            break
                 music = Music(id=str(id))
-                music.download()
-                path = r'cache\{0}.zqj'.format(name)
-                url = QUrl.fromLocalFile(path)
-                content = QMediaContent(url)
-                self.player.setMedia(content)
-                self.player.play()
-                self.gui.play_button.setText('暂停')
+                if music_name != self.gui.label.text()[5:]:
+                    self.gui.label.setText('正在播放：' + music_name)
+                    music.download()
+                    path = r'cache\{0}.mp3'.format(name)
+                    url = QUrl.fromLocalFile(path)
+                    content = QMediaContent(url)
+                    self.player.setMedia(content)
+                    self.player.play()
+                    self.gui.play_button.setText('暂停')
+                else:
+                    self.player.play()
+                    self.gui.play_button.setText('暂停')
             else:
-                self.player.stop()
-                self.gui.play_button.setText('开始')
+                self.player.pause()
+                self.gui.play_button.setText('播放')
 
     # 播放音乐线程
     def thread_playmusic(self):
@@ -93,18 +124,23 @@ class MainWindows:
 
     # 打开歌单
     def open_playlist(self):
-        playlist = self.gui.list.currentItem().text()
-        for i in self.search_return:
-            if i['name'] == playlist:
-                id = i['id']
-                break
+        if self.gui.search_type.currentText() == '歌单':
+            playlist = self.gui.list.currentItem().text()
+            for i in self.search_return:
+                if i['name'] == playlist:
+                    id = i['id']
+                    break
 
-        musics = find_id_in_playlist(id=id)
-        self.gui.list.clear()
-        for i in musics:
-            music = Music(id=i)
-            name = '{name}-{singer}'.format(name=music.name,singer=music.singer)
-            self.gui.list.addItem(name)
+            self.musics_by_playlist,ids = find_id_in_playlist(id=id)
+            self.gui.list.clear()
+            for i in self.musics_by_playlist:
+                name = '{name}-{singer}'.format(name=i['name'],singer=i['singer'])
+                self.gui.list.addItem(name)
+            for i in ids:
+                music = Music(id=i)
+                self.musics_by_playlist.append(music.detail)
+                name = '{name}-{singer}'.format(name=music.name,singer=music.singer)
+                self.gui.list.addItem(name)
 
     def thread_open_playlist(self):
         thread = Thread(target=self.open_playlist)
