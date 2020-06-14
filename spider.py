@@ -40,6 +40,8 @@ class Music:
         dic = json.loads(req)['data'][0]
         url = dic['url']  # 歌曲地址
 
+        if not os.path.exists('cache'):
+            os.mkdir('cache')
         file_name = 'cache\{name}-{singer}.mp3'.format(name=self.name, singer=self.singer)
         # 判断文件是否存在
         if os.path.exists(file_name) != True:
